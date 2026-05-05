@@ -1,7 +1,7 @@
 // import { getElevationColor } from './elevation.mjs';
 
 const TERRAIN_FLAG_KEY = 'difficult-terrain';
-const MODULE_NAME = 'ds-terrain-designer';
+const MODULE_ID = 'ds-terrain-designer';
 const TERRAIN_OVERLAY_NAME = 'terrain-overlay-container';
 const BRUSH_SIZES = [1, 2, 3];
 
@@ -9,13 +9,13 @@ const BRUSH_SIZES = [1, 2, 3];
 /*   Utility Functions / Getters and Setters          */
 /* -------------------------------------------------- */
 const getTerrainMap = () => {
-  return canvas.scene.getFlag(MODULE_NAME, TERRAIN_FLAG_KEY) ?? {};
+  return canvas.scene.getFlag(MODULE_ID, TERRAIN_FLAG_KEY) ?? {};
 };
 
 const setTerrainMap = async (map) => {
-  await canvas.scene.unsetFlag(MODULE_NAME, TERRAIN_FLAG_KEY);
+  await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
   if (Object.keys(map).length > 0) {
-    await canvas.scene.setFlag(MODULE_NAME, TERRAIN_FLAG_KEY, map);
+    await canvas.scene.setFlag(MODULE_ID, TERRAIN_FLAG_KEY, map);
   }
 };
 
@@ -197,7 +197,7 @@ export const renderTerrainOverlay = () => {
 };
 
 Hooks.on('updateScene', (scene, delta) => {
-  if (foundry.utils.hasProperty(delta, `flags.${MODULE_NAME}.${TERRAIN_FLAG_KEY}`)) {
+  if (foundry.utils.hasProperty(delta, `flags.${MODULE_ID}.${TERRAIN_FLAG_KEY}`)) {
     renderTerrainOverlay();
   }
 });
@@ -258,7 +258,7 @@ export const eraseDifficultTerrain = async () => {
 // "Clear Scene Terrain Markers"
 export const clearAllTerrain = async () => {
   if (!canvas.scene) return;
-  await canvas.scene.unsetFlag(MODULE_NAME, TERRAIN_FLAG_KEY);
+  await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
   clearTerrainOverlay();
   ui.notifications.info('All terrain markers have been cleared.');
 };

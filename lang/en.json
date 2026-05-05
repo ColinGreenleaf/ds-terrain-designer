@@ -1,18 +1,6 @@
 {
   "ds-terrain-designer": {
     "Settings": {
-      "RevengersWrap": {
-        "Name": "Revenger's Wrap",
-        "Hint": "Enable \"Marked for Revenge\" tracking and bonus effects for the wearer of a Revenger's Wrap."
-      },
-      "BloodboundBand": {
-        "Name": "Bloodbound Band",
-        "Hint": "Enable unpreventable damage shared between two or more wearers of a Bloodbound Band."
-      },
-      "ColorCloaks": {
-        "Name": "Color Cloaks",
-        "Hint": "Enable the Color Cloaks' trigger reminders. (Red = reduce fire damage to 0, Blue = shift equal to level, Yellow = bonus damage equal to level on next attack)"
-      },
       "OverlayVisualization": {
         "Name": "Elevation Overlay",
         "Hint": "Enable a visual overlay on the canvas to indicate change in elevation of tiles set by this module."
