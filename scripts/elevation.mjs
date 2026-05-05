@@ -20,7 +20,6 @@ const getElevationMap = () => {
 };
 
 const setElevationMap = async (map) => {
-  //unset all flags, the set new map
   await canvas.scene.unsetFlag(MODULE_ID, ELEVATION_FLAG_KEY);
   if (Object.keys(map).length > 0) {
     await canvas.scene.setFlag(MODULE_ID, ELEVATION_FLAG_KEY, map);
@@ -29,13 +28,11 @@ const setElevationMap = async (map) => {
 
 const toKey = (square) => `${square.x},${square.y}`;
 
-// Get elevation for a specific square, defaulting to 0 if not set
 export const getSquareElevation = (square) => {
   const map = getElevationMap();
   return map[toKey(square)] ?? 0;
 };
 
-// Set elevation for a specific square
 export const setSquareElevation = async (square, elevation) => {
   const map = foundry.utils.deepClone(getElevationMap());
   const key = toKey(square);
@@ -49,7 +46,6 @@ export const setSquareElevation = async (square, elevation) => {
   await setElevationMap(map);
 };
 
-// Get a list of all squares with elevation data
 export const getSquaresWithElevation = () => {
   const map = getElevationMap();
   return Object.entries(map).map(([key, value]) => {
@@ -58,12 +54,10 @@ export const getSquaresWithElevation = () => {
   });
 };
 
-// Clear elevation for a specific square
 export const clearSquareElevation = async (square) => {
   await setSquareElevation(square, 0);
 };
 
-// Clear elevation for all squares
 export const clearAllElevations = async () => {
   if (!canvas.scene) return;
   await canvas.scene.unsetFlag(MODULE_ID, ELEVATION_FLAG_KEY);
@@ -79,19 +73,19 @@ let _gradientTexture = null;
 let _gradientTextureSize = null;
 let _cornerTexture = null;
 
-// Map of where the shadow should appear RELATIVE to the high square
+// map of where the shadow should appear realtive to the high square
 const SHADOW_PUSH = [
-    { dx:  0, dy: -1, side: 'bottom' }, // Shadow on North neighbor's bottom edge
-    { dx:  1, dy:  0, side: 'left'   }, // Shadow on East neighbor's left edge
-    { dx:  0, dy:  1, side: 'top'    }, // Shadow on South neighbor's top edge
-    { dx: -1, dy:  0, side: 'right'  }, // Shadow on West neighbor's right edge
+    { dx:  0, dy: -1, side: 'bottom' }, 
+    { dx:  1, dy:  0, side: 'left'   }, 
+    { dx:  0, dy:  1, side: 'top'    }, 
+    { dx: -1, dy:  0, side: 'right'  }, 
 ];
 
 const CORNER_PUSH = [
-    { dx: -1, dy: -1, corner: 'br' }, // High is NW, shadow on SE corner of neighbor
-    { dx:  1, dy: -1, corner: 'bl' }, // High is NE, shadow on SW corner of neighbor
-    { dx:  1, dy:  1, corner: 'tl' }, // High is SE, shadow on NW corner of neighbor
-    { dx: -1, dy:  1, corner: 'tr' }  // High is SW, shadow on NE corner of neighbor
+    { dx: -1, dy: -1, corner: 'br' }, 
+    { dx:  1, dy: -1, corner: 'bl' }, 
+    { dx:  1, dy:  1, corner: 'tl' }, 
+    { dx: -1, dy:  1, corner: 'tr' } 
 ];
 
 const EDGE_ROTATIONS = {
@@ -171,6 +165,8 @@ export const selectSquares = ({ useElevation = false} = {}) => {
     let isPainting = false;
     let isErasing = false;
 
+
+    //hud handling
     const updateHud = () => {
       if (!hud) return;
       const brush = BRUSH_SIZES[currentBrushIdx];
@@ -216,6 +212,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
     document.body.appendChild(hud);
     updateHud();
 
+    //draw highlights on selected squares and hovered
     const drawHighlights = (altHeld = false) => {
       graphics.clear();
       const currentElevation = ELEVATIONS[currentElevationIdx];
@@ -242,11 +239,13 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       }
     };
 
+    //convert pixel grid position to square grid
     const toGrid = (pos) => ({
       x: Math.floor(pos.x / GRID),
       y: Math.floor(pos.y / GRID)
     });
 
+    //select any squares within the brush range
     const paintBrush = (center) => {
       const b = BRUSH_SIZES[currentBrushIdx];
       for (let i = center.x - b + 1; i <= center.x + b - 1; i++) {
@@ -265,6 +264,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       }
     };
 
+    //unselect any sqaures within the brush range
     const eraseBrush = (center) => {
       const b = BRUSH_SIZES[currentBrushIdx];
       for (let i = center.x - b + 1; i <= center.x + b - 1; i++) {
@@ -275,9 +275,9 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       }
     };
 
+    //functions to handle mouse interactions
     const onPointerMove = (event) => {
       hoverSquare = toGrid(event.data.getLocalPosition(stage));
-      // update HUD if alt state has changed
       if (event.altKey !== isErasing) {
         isErasing = event.altKey;
         updateHud();
@@ -289,7 +289,6 @@ export const selectSquares = ({ useElevation = false} = {}) => {
     };
 
     const onPointerDown = (event) => {
-      //activate painting only on left click
       isPainting = (event.button === 0);
       isErasing = event.altKey;
       hoverSquare = toGrid(event.data.getLocalPosition(stage));
@@ -301,6 +300,8 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       isPainting = false;
     };
 
+
+    //functions to handle key presses
     const handleKey = (key, fn) => {
       key.preventDefault();
       key.stopPropagation();
@@ -319,7 +320,6 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       else if (event.key === 'Tab')     handleKey(event, () => { currentElevationIdx = (currentElevationIdx + 1) % ELEVATIONS.length; updateHud(); drawHighlights(event.altKey); });
     };
 
-    // update HUD and brush preview when alt is released without moving mouse
     const onKeyUp = (event) => {
       if (event.key === 'Alt') {
         isErasing = false;
@@ -328,6 +328,8 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       }
     };
 
+
+    //cleanup and init
     const cleanup = () => {
       overlay.off('pointermove', onPointerMove);
       overlay.off('pointerdown', onPointerDown);
@@ -350,15 +352,10 @@ export const selectSquares = ({ useElevation = false} = {}) => {
 };
 
 
-
-
-
-
 /* -------------------------------------------------- */
 /*   Handler for Token Movement onto Elevated Tiles   */
 /* -------------------------------------------------- */
 Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
-  // Check if the token's position changed
   if (changes.x !== undefined || changes.y !== undefined) {
     const gridSize = canvas.grid.size;
     const gridX = Math.floor((changes.x ?? tokenDoc.x) / gridSize);
@@ -371,7 +368,6 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
       await tokenDoc.update({ elevation: 0 });
     } 
 
-    //if the elevation is 2 or more squares higher than the token's current elevation, show a warning notification
     if (squareElevation > tokenDoc.elevation + 1.9) {
       ui.notifications.warn(`${tokenDoc.name} is moving onto a square with elevation ${squareElevation}, which is more than 1 higher than their current elevation of ${tokenDoc.elevation}.`);
     }
@@ -398,7 +394,6 @@ export const renderElevationOverlay = () => {
 
 //helper to render gradients
 export const renderGradient = () => {
-    // FIX: Consistently check and use canvas.primary
     const existing = canvas.primary.getChildByName(ELEVATION_OVERLAY_NAME);
     if (existing) existing.destroy({ children: true, texture: false });
 
@@ -460,7 +455,6 @@ export const renderGradient = () => {
         const neighborElev = map[`${nx},${ny}`] ?? 0;
 
         if (neighborElev < elev) {
-          // Skip corner shadow if orthogonal shadows are already covering it
           const adj1 = map[`${x + dx},${y}`] ?? 0;
           const adj2 = map[`${x},${y + dy}`] ?? 0;
           if (adj1 >= elev || adj2 >= elev) continue;
@@ -499,12 +493,11 @@ export const renderGradient = () => {
       //ORTHOGONAL inward shadows
       for (const { dx, dy, side } of SHADOW_PUSH) {
         const neighborElev = map[`${x+dx},${y+dy}`] ?? 0;
-        if (neighborElev <= elev) continue; // Neighbor must be higher than this pit
+        if (neighborElev <= elev) continue;
 
         const delta = neighborElev - elev;
         const alpha = BASE_GRADIENT_STRENGTH * Math.min(1, 0.3 + delta * 0.2);
 
-        // Use the OPPOSITE side's rotation so the gradient faces inward
         const oppSide = OPPOSITE_SIDE[side];
         const { rotation, anchorX, anchorY } = EDGE_ROTATIONS[oppSide];
 
@@ -514,7 +507,6 @@ export const renderGradient = () => {
         sprite.rotation = rotation;
         sprite.anchor.set(anchorX, anchorY);
 
-        // Position on *this* square, not the neighbor — same offset logic as section 1
         const px = x * GRID;
         const py = y * GRID;
         const bOff = (oppSide === 'bottom') ? -GRID : 0;
@@ -531,7 +523,6 @@ export const renderGradient = () => {
         const neighborElev = map[`${x+dx},${y+dy}`] ?? 0;
         if (neighborElev <= elev) continue;
 
-        // Skip if either adjacent orthogonal neighbor is already higher (orthogonal shadow covers it)
         const adj1 = map[`${x+dx},${y}`] ?? 0;
         const adj2 = map[`${x},${y+dy}`] ?? 0;
         if (adj1 > elev || adj2 > elev) continue;
@@ -607,7 +598,6 @@ export const renderColorTiles = () => {
 
     graphics.clear();
 
-    // Iterate through squares with elevation and draw its appropriate color
     for (const square of squares) {
       const color = getElevationColor(square.elevation);
 
@@ -658,10 +648,8 @@ export const renderNumbers = () => {
 
 //overlay re-render processing
 Hooks.on('updateScene', (scene, delta) => {
-  // Only react if it's the currently viewed scene
   if (scene.id !== canvas.scene?.id) return;
   
-  // Only react if our elevation flag was part of the update
   const elevationChanged = foundry.utils.hasProperty(
     delta, 
     `flags.${MODULE_ID}.${ELEVATION_FLAG_KEY}`
@@ -681,7 +669,7 @@ Hooks.on('updateScene', (scene, delta) => {
 /* -------------------------------------------------- */
 
 
-// "Elevation Builder Tool"
+// "Elevation Painter"
 export const selectForAssignment = async () => {
   ui.notifications.info('Click/drag squares to paint elevation.');
   const result = await selectSquares({ useElevation: true});
@@ -695,7 +683,6 @@ export const selectForAssignment = async () => {
   const { squares, cleanup } = result;
 
   try {
-    // Each square already knows its elevation — set them all directly
     for (const square of squares) {
       await setSquareElevation(square, square.elevation);
     }
@@ -705,7 +692,7 @@ export const selectForAssignment = async () => {
   }
 };
 
-// "Elevation Remover Tool"
+// "Elevation Eraser"
 export const selectForClearing = async () => {
     ui.notifications.info('Click squares to select them.');
 
@@ -721,112 +708,111 @@ export const selectForClearing = async () => {
     for (const square of squares) {
       await clearSquareElevation(square);
     }
-    // Re-render elevation labels after a short delay to ensure updates are applied
     renderElevationOverlay();
   } finally {
     cleanup();
   }
 };
 
-// "Clear Scene Elevation Markers"
+// "Clear Scene Elevation"
 export const clearElevationOverlay = () => {
     const existing = canvas.primary.getChildByName(ELEVATION_OVERLAY_NAME);
     if (existing) existing.destroy({ children: true, texture: false });
 };
 
 // "Check Elevation"
-export const checkSquareElevation = async () => {
-  ui.notifications.info('Hover to check elevations. Press Escape to exit.');
-  return new Promise((resolve) => {
-    const stage = canvas.app.stage;
-    const graphics = new PIXI.Graphics();
-    const overlay = new PIXI.Container();
+// export const checkSquareElevation = async () => {
+//   ui.notifications.info('Hover to check elevations. Press Escape to exit.');
+//   return new Promise((resolve) => {
+//     const stage = canvas.app.stage;
+//     const graphics = new PIXI.Graphics();
+//     const overlay = new PIXI.Container();
 
-    const GRID = canvas.grid.size;
+//     const GRID = canvas.grid.size;
     
-    // Create a floating label to show the elevation number
-    const label = new PIXI.Text("", {
-      fontFamily: 'Arial',
-      fontSize: Math.ceil(GRID * 0.5),
-      fill: 0xffffff,
-      stroke: 0x000000,
-      strokeThickness: 4,
-      fontWeight: 'bold'
-    });
+//     // Create a floating label to show the elevation number
+//     const label = new PIXI.Text("", {
+//       fontFamily: 'Arial',
+//       fontSize: Math.ceil(GRID * 0.5),
+//       fill: 0xffffff,
+//       stroke: 0x000000,
+//       strokeThickness: 4,
+//       fontWeight: 'bold'
+//     });
 
-    overlay.interactive = true;
-    overlay.eventMode = 'static';
-    overlay.hitArea = new PIXI.Rectangle(0, 0, canvas.dimensions.width, canvas.dimensions.height);
+//     overlay.interactive = true;
+//     overlay.eventMode = 'static';
+//     overlay.hitArea = new PIXI.Rectangle(0, 0, canvas.dimensions.width, canvas.dimensions.height);
     
-    stage.addChild(graphics);
-    stage.addChild(label);
-    stage.addChild(overlay);
+//     stage.addChild(graphics);
+//     stage.addChild(label);
+//     stage.addChild(overlay);
 
     
 
-    const drawHighlights = (hoverSquare, mousePos) => {
-      graphics.clear();
+//     const drawHighlights = (hoverSquare, mousePos) => {
+//       graphics.clear();
       
-      const hoverElevation = getSquareElevation(hoverSquare);
-      const color = getElevationColor(hoverElevation);
+//       const hoverElevation = getSquareElevation(hoverSquare);
+//       const color = getElevationColor(hoverElevation);
       
-      // Update the floating label
-      label.text = `${hoverElevation}`;
-      label.x = mousePos.x; // Offset from cursor
-      label.y = mousePos.y - GRID * 0.5;
-      label.style.fill = color;
+//       // Update the floating label
+//       label.text = `${hoverElevation}`;
+//       label.x = mousePos.x; // Offset from cursor
+//       label.y = mousePos.y - GRID * 0.5;
+//       label.style.fill = color;
 
-      // Highlight all squares with the same elevation
-      const map = getElevationMap();
+//       // Highlight all squares with the same elevation
+//       const map = getElevationMap();
       
-      // We always draw the hover square, even if elevation is 0
-      graphics.lineStyle(4, color, 0.8);
+//       // We always draw the hover square, even if elevation is 0
+//       graphics.lineStyle(4, color, 0.8);
       
-      // Find all matches
-      for (const [key, elev] of Object.entries(map)) {
-        if (elev === hoverElevation && elev !== 0) {
-          const [x, y] = key.split(',').map(Number);
-          graphics.beginFill(color, 0.3);
-          graphics.drawRect(x * GRID, y * GRID, GRID, GRID);
-          graphics.endFill();
-        }
-      }
+//       // Find all matches
+//       for (const [key, elev] of Object.entries(map)) {
+//         if (elev === hoverElevation && elev !== 0) {
+//           const [x, y] = key.split(',').map(Number);
+//           graphics.beginFill(color, 0.3);
+//           graphics.drawRect(x * GRID, y * GRID, GRID, GRID);
+//           graphics.endFill();
+//         }
+//       }
 
-      // Special highlight for the square currently under the mouse
-      graphics.lineStyle(6, 0xffffff, 0.5);
-      graphics.drawRect(hoverSquare.x * GRID, hoverSquare.y * GRID, GRID, GRID);
-    };
+//       // Special highlight for the square currently under the mouse
+//       graphics.lineStyle(6, 0xffffff, 0.5);
+//       graphics.drawRect(hoverSquare.x * GRID, hoverSquare.y * GRID, GRID, GRID);
+//     };
 
-    const onPointerMove = (event) => {
-      const mousePos = event.data.getLocalPosition(stage);
-      const hoverSquare = {
-        x: Math.floor(mousePos.x / GRID),
-        y: Math.floor(mousePos.y / GRID)
-      };
-      drawHighlights(hoverSquare, mousePos);
-    };
+//     const onPointerMove = (event) => {
+//       const mousePos = event.data.getLocalPosition(stage);
+//       const hoverSquare = {
+//         x: Math.floor(mousePos.x / GRID),
+//         y: Math.floor(mousePos.y / GRID)
+//       };
+//       drawHighlights(hoverSquare, mousePos);
+//     };
 
-    const cleanup = () => {
-      overlay.off('pointermove', onPointerMove);
-      stage.removeChild(overlay);
-      stage.removeChild(graphics);
-      stage.removeChild(label);
-      document.removeEventListener('keydown', onKeyDown);
-      resolve();
-    };
+//     const cleanup = () => {
+//       overlay.off('pointermove', onPointerMove);
+//       stage.removeChild(overlay);
+//       stage.removeChild(graphics);
+//       stage.removeChild(label);
+//       document.removeEventListener('keydown', onKeyDown);
+//       resolve();
+//     };
 
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        cleanup();
-      }
-    };
+//     const onKeyDown = (event) => {
+//       if (event.key === 'Escape') {
+//         event.preventDefault();
+//         event.stopPropagation();
+//         cleanup();
+//       }
+//     };
 
-    overlay.on('pointermove', onPointerMove);
-    document.addEventListener('keydown', onKeyDown);
-  });
-};
+//     overlay.on('pointermove', onPointerMove);
+//     document.addEventListener('keydown', onKeyDown);
+//   });
+// };
 
 
 /* -------------------------------------------------- */
@@ -846,10 +832,8 @@ Hooks.once('ready', () => {
 
   //override the method with new condition
   AbilitySystem.prototype.getTargetModifiers = function(target) {
-    // Get the base modifiers from the system
     const modifiers = _original.call(this, target);
 
-    // Find the controlled token belonging to this item's actor
     const userToken = canvas.tokens.controlled.find(t => t.actor === this.actor)
       ?? canvas.tokens.placeables.find(t => t.actor === this.actor);
 
@@ -858,7 +842,6 @@ Hooks.once('ready', () => {
       const targetElevation = target.document?.elevation ?? target.elevation ?? 0;
       const targetSize = target.actor?.system?.combat?.size?.value ?? 1;
 
-      // Edge condition: target's topmost point is still below the user's feet
       if ((targetElevation + targetSize) <= userElevation) {
         modifiers.edges += 1;
       }

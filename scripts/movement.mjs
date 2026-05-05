@@ -3,12 +3,11 @@ import { getSquareElevation } from './elevation.mjs';
 const MOVEMENT_RANGE_NAME = 'movement-range-container';
 const MODULE_ID = 'ds-terrain-designer';
 
+//DEFUNCT FOR NOW
 
-/* ___________________________________________________
- *
- * BFS Logic
- * ___________________________________________________
- */
+/* -------------------------------------------------- */
+/*   BFS Logic                                        */
+/* -------------------------------------------------- */
 const computeReachable = (token, multiplier = 1) => {
   const totalSpeed = token.actor?.system?.movement?.value ?? 0;
   const speed = totalSpeed * multiplier;
@@ -76,11 +75,9 @@ const getMoveCost = (movementTypes, from, to, costSoFar) => {
 };
 
 
-/* ___________________________________________________
- *
- * RENDERING
- * ___________________________________________________
- */
+/* -------------------------------------------------- */
+/*   Rendering                                        */
+/* -------------------------------------------------- */
 const clearMovementRange = () => {
   const existing = canvas.primary.getChildByName(MOVEMENT_RANGE_NAME);
   if (existing) existing.destroy({ children: true });
@@ -96,7 +93,6 @@ const drawMovementRange = (token, multiplier = 1) => {
   const container = new PIXI.Container();
   container.name  = MOVEMENT_RANGE_NAME;
 
-  // --- Collect perimeter edges ---
   const DIRS    = [{ dx: 0, dy: -1 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }];
   const edgeSet = new Set();
   const edges   = [];
@@ -122,7 +118,6 @@ const drawMovementRange = (token, multiplier = 1) => {
     }
   }
 
-  // --- Glow layer ---
   const glow = new PIXI.Graphics();
   glow.lineStyle(10, 0xffffff, 0.35);
   for (const { x1, y1, x2, y2 } of edges)
@@ -130,7 +125,6 @@ const drawMovementRange = (token, multiplier = 1) => {
   glow.filters = [new PIXI.BlurFilter(8)];
   container.addChild(glow);
 
-  // --- Crisp line ---
   const line = new PIXI.Graphics();
   line.lineStyle(5, 0xffffff, 0.9);
   for (const { x1, y1, x2, y2 } of edges)
@@ -141,11 +135,9 @@ const drawMovementRange = (token, multiplier = 1) => {
 };
 
 
-/* ___________________________________________________
- *
- * HOOKS
- * ___________________________________________________
- */
+/* -------------------------------------------------- */
+/*   Hooks                                            */
+/* -------------------------------------------------- */
 
 // Show range when a combatant's turn begins
 Hooks.on('combatTurnChange', (combat, prior, current) => {
@@ -166,7 +158,7 @@ Hooks.on('moveToken', (tokenDoc, movement) => {
   if (!token) return;
 
   const totalSpeed = token.actor?.system?.movement?.value ?? 1;
-  const spent      = movement.history.spaces + movement.passed.spaces; // ← both
+  const spent      = movement.history.spaces + movement.passed.spaces;
   const multiplier = Math.max(0, (totalSpeed - spent) / totalSpeed);
 
   const animation = token.movementAnimationPromise;

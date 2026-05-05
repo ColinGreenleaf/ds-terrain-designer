@@ -1,5 +1,3 @@
-// import { getElevationColor } from './elevation.mjs';
-
 const TERRAIN_FLAG_KEY = 'difficult-terrain';
 const MODULE_ID = 'ds-terrain-designer';
 const TERRAIN_OVERLAY_NAME = 'terrain-overlay-container';
@@ -66,6 +64,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
     let isPainting = false;
     let isErasing = false;
 
+    //hud handling
     const updateHud = () => {
       if (!hud) return;
       const brush = BRUSH_SIZES[currentBrushIdx];
@@ -88,6 +87,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
     document.body.appendChild(hud);
     updateHud();
 
+    //draw highlights on selected sqaures and hovered
     const drawHighlights = (altHeld = false) => {
       graphics.clear();
       for (const square of selectedSquares) {
@@ -104,8 +104,13 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
       }
     };
 
-    const toGrid = (pos) => ({ x: Math.floor(pos.x / GRID), y: Math.floor(pos.y / GRID) });
+    //convert pixel grid position to square grid
+    const toGrid = (pos) => ({
+      x: Math.floor(pos.x / GRID),
+      y: Math.floor(pos.y / GRID)
+    });
 
+    //select any squares within the brush range
     const paintBrush = (center) => {
       const b = BRUSH_SIZES[currentBrushIdx];
       for (let i = center.x - b + 1; i <= center.x + b - 1; i++) {
@@ -117,6 +122,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
       }
     };
 
+    //unselect any squares within the brush range
     const eraseBrush = (center) => {
       const b = BRUSH_SIZES[currentBrushIdx];
       for (let i = center.x - b + 1; i <= center.x + b - 1; i++) {
@@ -127,6 +133,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
       }
     };
 
+    //functions to handle mouse interactions
     const onPointerMove = (e) => {
       hoverSquare = toGrid(e.data.getLocalPosition(stage));
       if (isPainting) isErasing ? eraseBrush(hoverSquare) : paintBrush(hoverSquare);
@@ -141,6 +148,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
       drawHighlights(e.altKey);
     };
 
+    //functions to handle key presses
     const handleKey = (key, fn) => {
       key.preventDefault();
       key.stopPropagation();
@@ -154,6 +162,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
       if (event.key === ']')       handleKey(event, () => { currentBrushIdx = (currentBrushIdx + 1) % BRUSH_SIZES.length; updateHud(); drawHighlights(event.altKey); });
     };
 
+    //cleanup and init
     const cleanup = () => {
       stage.removeChild(overlay, graphics);
       document.removeEventListener('keydown', onKeyDown);
@@ -207,7 +216,7 @@ Hooks.on('updateScene', (scene, delta) => {
 /*   Scene Button Methods                             */
 /* -------------------------------------------------- */
 
-// "Difficult Terrain Designer"
+// "Difficult Terrain Painter"
 export const paintDifficultTerrain = async () => {
   ui.notifications.info('Click/drag to paint difficult terrain.');
   
@@ -231,7 +240,7 @@ export const paintDifficultTerrain = async () => {
   }
 };
 
-// "Terrain Eraser Tool"
+// "Difficult Terrain Eraser"
 export const eraseDifficultTerrain = async () => {
   ui.notifications.info('Click/drag to select for clearing difficult terrain.');
   
@@ -255,7 +264,7 @@ export const eraseDifficultTerrain = async () => {
   }
 };
 
-// "Clear Scene Terrain Markers"
+// "Clear Scene Difficult Terrain"
 export const clearAllTerrain = async () => {
   if (!canvas.scene) return;
   await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
