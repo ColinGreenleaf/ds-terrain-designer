@@ -369,9 +369,9 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
       await tokenDoc.update({ elevation: 0 });
     } 
 
-    if (squareElevation > tokenDoc.elevation + 1.9) {
-      ui.notifications.warn(`${tokenDoc.name} is moving onto a square with elevation ${squareElevation}, which is more than 1 higher than their current elevation of ${tokenDoc.elevation}.`);
-    }
+    // if (squareElevation > tokenDoc.elevation + 1.9) {
+    //   ui.notifications.warn(`${tokenDoc.name} is moving onto a square with elevation ${squareElevation}, which is more than 1 higher than their current elevation of ${tokenDoc.elevation}.`);
+    // }
   }
 });
 
