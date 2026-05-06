@@ -722,98 +722,98 @@ export const clearElevationOverlay = () => {
 };
 
 // "Check Elevation"
-// export const checkSquareElevation = async () => {
-//   ui.notifications.info('Hover to check elevations. Press Escape to exit.');
-//   return new Promise((resolve) => {
-//     const stage = canvas.app.stage;
-//     const graphics = new PIXI.Graphics();
-//     const overlay = new PIXI.Container();
+export const checkSquareElevation = async () => {
+  ui.notifications.info('Hover to check elevations. Press Escape to exit.');
+  return new Promise((resolve) => {
+    const stage = canvas.app.stage;
+    const graphics = new PIXI.Graphics();
+    const overlay = new PIXI.Container();
 
-//     const GRID = canvas.grid.size;
+    const GRID = canvas.grid.size;
     
-//     // Create a floating label to show the elevation number
-//     const label = new PIXI.Text("", {
-//       fontFamily: 'Arial',
-//       fontSize: Math.ceil(GRID * 0.5),
-//       fill: 0xffffff,
-//       stroke: 0x000000,
-//       strokeThickness: 4,
-//       fontWeight: 'bold'
-//     });
+    // Create a floating label to show the elevation number
+    const label = new PIXI.Text("", {
+      fontFamily: 'Arial',
+      fontSize: Math.ceil(GRID * 0.5),
+      fill: 0xffffff,
+      stroke: 0x000000,
+      strokeThickness: 4,
+      fontWeight: 'bold'
+    });
 
-//     overlay.interactive = true;
-//     overlay.eventMode = 'static';
-//     overlay.hitArea = new PIXI.Rectangle(0, 0, canvas.dimensions.width, canvas.dimensions.height);
+    overlay.interactive = true;
+    overlay.eventMode = 'static';
+    overlay.hitArea = new PIXI.Rectangle(0, 0, canvas.dimensions.width, canvas.dimensions.height);
     
-//     stage.addChild(graphics);
-//     stage.addChild(label);
-//     stage.addChild(overlay);
+    stage.addChild(graphics);
+    stage.addChild(label);
+    stage.addChild(overlay);
 
     
 
-//     const drawHighlights = (hoverSquare, mousePos) => {
-//       graphics.clear();
+    const drawHighlights = (hoverSquare, mousePos) => {
+      graphics.clear();
       
-//       const hoverElevation = getSquareElevation(hoverSquare);
-//       const color = getElevationColor(hoverElevation);
+      const hoverElevation = getSquareElevation(hoverSquare);
+      const color = getElevationColor(hoverElevation);
       
-//       // Update the floating label
-//       label.text = `${hoverElevation}`;
-//       label.x = mousePos.x; // Offset from cursor
-//       label.y = mousePos.y - GRID * 0.5;
-//       label.style.fill = color;
+      // Update the floating label
+      label.text = `${hoverElevation}`;
+      label.x = mousePos.x; // Offset from cursor
+      label.y = mousePos.y - GRID * 0.5;
+      label.style.fill = color;
 
-//       // Highlight all squares with the same elevation
-//       const map = getElevationMap();
+      // Highlight all squares with the same elevation
+      const map = getElevationMap();
       
-//       // We always draw the hover square, even if elevation is 0
-//       graphics.lineStyle(4, color, 0.8);
+      // We always draw the hover square, even if elevation is 0
+      graphics.lineStyle(4, color, 0.8);
       
-//       // Find all matches
-//       for (const [key, elev] of Object.entries(map)) {
-//         if (elev === hoverElevation && elev !== 0) {
-//           const [x, y] = key.split(',').map(Number);
-//           graphics.beginFill(color, 0.3);
-//           graphics.drawRect(x * GRID, y * GRID, GRID, GRID);
-//           graphics.endFill();
-//         }
-//       }
+      // Find all matches
+      for (const [key, elev] of Object.entries(map)) {
+        if (elev === hoverElevation && elev !== 0) {
+          const [x, y] = key.split(',').map(Number);
+          graphics.beginFill(color, 0.3);
+          graphics.drawRect(x * GRID, y * GRID, GRID, GRID);
+          graphics.endFill();
+        }
+      }
 
-//       // Special highlight for the square currently under the mouse
-//       graphics.lineStyle(6, 0xffffff, 0.5);
-//       graphics.drawRect(hoverSquare.x * GRID, hoverSquare.y * GRID, GRID, GRID);
-//     };
+      // Special highlight for the square currently under the mouse
+      graphics.lineStyle(6, 0xffffff, 0.5);
+      graphics.drawRect(hoverSquare.x * GRID, hoverSquare.y * GRID, GRID, GRID);
+    };
 
-//     const onPointerMove = (event) => {
-//       const mousePos = event.data.getLocalPosition(stage);
-//       const hoverSquare = {
-//         x: Math.floor(mousePos.x / GRID),
-//         y: Math.floor(mousePos.y / GRID)
-//       };
-//       drawHighlights(hoverSquare, mousePos);
-//     };
+    const onPointerMove = (event) => {
+      const mousePos = event.data.getLocalPosition(stage);
+      const hoverSquare = {
+        x: Math.floor(mousePos.x / GRID),
+        y: Math.floor(mousePos.y / GRID)
+      };
+      drawHighlights(hoverSquare, mousePos);
+    };
 
-//     const cleanup = () => {
-//       overlay.off('pointermove', onPointerMove);
-//       stage.removeChild(overlay);
-//       stage.removeChild(graphics);
-//       stage.removeChild(label);
-//       document.removeEventListener('keydown', onKeyDown);
-//       resolve();
-//     };
+    const cleanup = () => {
+      overlay.off('pointermove', onPointerMove);
+      stage.removeChild(overlay);
+      stage.removeChild(graphics);
+      stage.removeChild(label);
+      document.removeEventListener('keydown', onKeyDown);
+      resolve();
+    };
 
-//     const onKeyDown = (event) => {
-//       if (event.key === 'Escape') {
-//         event.preventDefault();
-//         event.stopPropagation();
-//         cleanup();
-//       }
-//     };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        cleanup();
+      }
+    };
 
-//     overlay.on('pointermove', onPointerMove);
-//     document.addEventListener('keydown', onKeyDown);
-//   });
-// };
+    overlay.on('pointermove', onPointerMove);
+    document.addEventListener('keydown', onKeyDown);
+  });
+};
 
 
 /* -------------------------------------------------- */

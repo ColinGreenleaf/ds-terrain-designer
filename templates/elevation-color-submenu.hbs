@@ -1,0 +1,18 @@
+<section class="standard-form">
+    <p class="notes">Configure the visual colors for each elevation level.</p>
+    
+    {{#each items}}
+    <div class="form-group">
+        <label>{{this.name}}</label>
+        <div class="form-fields">
+            <input type="color" name="{{this.key}}" value="{{this.value}}">
+        </div>
+    </div>
+    {{/each}}
+
+    <footer class="sheet-footer flexrow">
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> Save Changes
+        </button>
+    </footer>
+</section>

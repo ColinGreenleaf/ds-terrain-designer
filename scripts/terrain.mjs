@@ -195,13 +195,22 @@ export const renderTerrainOverlay = () => {
   const GRID = canvas.grid.size;
   for (const [key, mult] of Object.entries(map)) {
     const [x, y] = key.split(',').map(Number);
-    const color = 0x000000;
+
+    const terrainColorString =  game.settings.get(MODULE_ID, `TerrainColor`)
+    const color = Number(Color.from(terrainColorString))
     
     // Draw a pattern (slashes) to distinguish from solid elevation colors
-    graphics.lineStyle(4, color, 0.5);
+    graphics.lineStyle(4, color, 0.4);
     graphics.moveTo((x) * GRID, (y+ 0.5) * GRID).lineTo((x+0.5) * GRID, (y) * GRID);
     graphics.moveTo((x) * GRID, (y+ 1) * GRID).lineTo((x+1) * GRID, (y) * GRID);
     graphics.moveTo((x+0.5) * GRID, (y+ 1) * GRID).lineTo((x+1) * GRID, (y+0.5) * GRID);
+
+    if (game.settings.get(MODULE_ID, `TerrainStyle`) === 'dense') {
+      graphics.moveTo((x) * GRID, (y+ 0.25) * GRID).lineTo((x+0.25) * GRID, (y) * GRID);
+      graphics.moveTo((x) * GRID, (y+ 0.75) * GRID).lineTo((x+0.75) * GRID, (y) * GRID);
+      graphics.moveTo((x+0.25) * GRID, (y+ 1) * GRID).lineTo((x+1) * GRID, (y+0.25) * GRID);
+      graphics.moveTo((x+0.75) * GRID, (y+ 1) * GRID).lineTo((x+1) * GRID, (y+0.75) * GRID);
+    }
   }
 
   canvas.primary.addChild(container);

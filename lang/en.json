@@ -2,25 +2,44 @@
   "ds-terrain-designer": {
     "Settings": {
       "OverlayVisualization": {
-        "Name": "Elevation Overlay",
-        "Hint": "Enable a visual overlay on the canvas to indicate change in elevation of tiles set by this module."
+        "Name": "Elevation Overlay Enabled",
+        "Hint": "Enable the visual overlay on scene canvas to indicate square elevation set by this module."
       },
       "OverlayStyle": {
         "Name": "Overlay Mode",
-        "Hint": "Choose which style of visualization to use.",
+        "Hint": "Choose which style of visualization to use. Gradient creates a drop shadow on lower squares, Colored Tile highlights all elevated squares with their designated color.",
         "Choice": {
-          "gradient": "Gradient Overlay",
-          "color": "Colored Tile Overlay"
+          "gradient": "Gradient",
+          "color": "Colored Tile"
         }
       },
+      "ColorOpacity": {
+        "Name": "Colored Tile Opacity",
+        "Hint": "Choose the opacity of the Colored Tile overlay if enabled."
+      },
       "NumberOverlay": {
-        "Name": "Number Overlay",
-        "Hint": "Enable an additional numerical overlay on the canvas to indicate the elevation of tiles."
+        "Name": "Number Overlay Enabled",
+        "Hint": "Enable a numerical overlay on the canvas to label the elevation of squares."
       },
       "NumberOverlayColor": {
         "Name": "Add Color to Number Overlay",
-        "Hint": "Enable colorful numbers when the number overlay is enabled. if disabled, numbers will be black."
+        "Hint": "Enable colorful numbers when the number overlay is enabled."
+      },
+      "TerrainStyle": {
+        "Name": "Terrain Overlay Style",
+        "Hint": "Choose how intense the shading is for the difficult terrain overlay",
+        "Choice": {
+          "light": "Light",
+          "dense": "Dense"
+        }
+      },
+
+      "ElevationColorMenu": {
+        "Name": "Set Elevation Colors",
+        "Hint": "Choose the color used to represent each elevation. (used in Colored Tile overlay, colored number overlay, and Elevation Painter)",
+        "Label": "Configure Colors"
       }
+      
     }
   }
 }

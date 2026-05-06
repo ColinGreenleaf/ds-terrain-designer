@@ -1,4 +1,4 @@
-import {selectForAssignment, selectForClearing, clearAllElevations} from "./elevation.mjs";
+import {selectForAssignment, selectForClearing, clearAllElevations, checkSquareElevation} from "./elevation.mjs";
 import {paintDifficultTerrain, eraseDifficultTerrain, clearAllTerrain} from "./terrain.mjs";
 
 
@@ -20,7 +20,7 @@ export const registerModuleButtons = () => {
                 icon: 'fas fa-arrow-up',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {selectForAssignment()}
+                onChange: () => {selectForAssignment()}
             },
             'clear-elevation': {
                 name: 'clear-elevation',
@@ -28,7 +28,7 @@ export const registerModuleButtons = () => {
                 icon: 'fas fa-eraser',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {selectForClearing()}
+                onChange: () => {selectForClearing()}
             },
             'clear-all-elevation': {
                 name: 'clear-all-elevation',
@@ -36,23 +36,23 @@ export const registerModuleButtons = () => {
                 icon: 'fas fa-trash-alt',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {clearAllElevations()}
+                onChange: () => {clearAllElevations()}
             },
-            // 'check-elevation': {
-            //     name: 'check-elevation',
-            //     title: 'Check Elevation',
-            //     icon: 'fas fa-search',
-            //     button: true,
-            //     visible: game.user.isGM,
-            //     onClick: () => {checkSquareElevation()}
-            // },
+            'check-elevation': {
+                name: 'check-elevation',
+                title: 'Check Elevation',
+                icon: 'fas fa-search',
+                button: true,
+                visible: true,
+                onChange: () => {checkSquareElevation()}
+            },
             'terrain': {
                 name: 'terrain',
                 title: 'Difficult Terrain Painter',
                 icon: 'fas fa-hill-rockslide',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {paintDifficultTerrain()}
+                onChange: () => {paintDifficultTerrain()}
             },
             'clear-terrain': {
                 name: 'clear-terrain',
@@ -60,7 +60,7 @@ export const registerModuleButtons = () => {
                 icon: 'fas fa-eraser',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {eraseDifficultTerrain()}
+                onChange: () => {eraseDifficultTerrain()}
             },
             'clear-all-terrain': {
                 name: 'clear-all-terrain',
@@ -68,7 +68,7 @@ export const registerModuleButtons = () => {
                 icon: 'fas fa-trash-alt',
                 button: true,
                 visible: game.user.isGM,
-                onClick: () => {clearAllTerrain()}
+                onChange: () => {clearAllTerrain()}
             },
         }
     }
