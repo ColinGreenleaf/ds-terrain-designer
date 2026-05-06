@@ -356,6 +356,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
 /*   Handler for Token Movement onto Elevated Tiles   */
 /* -------------------------------------------------- */
 Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
+  if (game.modules.get('draw-steel-combat-tools')?.api?.isFMActive?.()) return;
   if (changes.x !== undefined || changes.y !== undefined) {
     const gridSize = canvas.grid.size;
     const gridX = Math.floor((changes.x ?? tokenDoc.x) / gridSize);

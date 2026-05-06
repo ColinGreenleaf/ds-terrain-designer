@@ -1,4 +1,4 @@
-import {selectForAssignment, selectForClearing, clearAllElevations, checkSquareElevation} from "./elevation.mjs";
+import {selectForAssignment, selectForClearing, clearAllElevations} from "./elevation.mjs";
 import {paintDifficultTerrain, eraseDifficultTerrain, clearAllTerrain} from "./terrain.mjs";
 
 

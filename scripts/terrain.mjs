@@ -67,17 +67,15 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
     //hud handling
     const updateHud = () => {
       if (!hud) return;
+      console.log(isErasing);
       const brush = BRUSH_SIZES[currentBrushIdx];
       const mult = 2;
       hud.innerHTML = `
         <h1>Terrain ${erasing ? 'Eraser' : 'Painter'}</h1> 
-        <h3 style="display: flex; justify-content: space-between;">
-          ${isErasing
-            ? `<p><strong style="color:#ff6666;">Unselect Mode</strong><p>`
-            : ``
-          }
-          <p>Brush Size: <strong>${brush}</strong><p>
-        </h3>
+          <h3>
+            Brush Size: <strong>${brush}</strong>
+            ${isErasing ? `<strong style="color:#ff6666;">Unselect Mode</strong>` : ''}
+          </h3>
         <div style="font-size:13px; color:#ccc">Select Squares. [ ] for brush size.<br>Alt to unselect. Esc to cancel, Enter to confirm.</div>
       `;
     };
@@ -135,6 +133,10 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
 
     //functions to handle mouse interactions
     const onPointerMove = (e) => {
+      if (event.altKey !== isErasing) {
+        isErasing = event.altKey;
+        updateHud();
+      }
       hoverSquare = toGrid(e.data.getLocalPosition(stage));
       if (isPainting) isErasing ? eraseBrush(hoverSquare) : paintBrush(hoverSquare);
       drawHighlights(e.altKey);
@@ -244,7 +246,7 @@ export const paintDifficultTerrain = async () => {
 export const eraseDifficultTerrain = async () => {
   ui.notifications.info('Click/drag to select for clearing difficult terrain.');
   
-  const result = await selectTerrainSquares();
+  const result = await selectTerrainSquares({erasing: true});
 
   if (!result || !result.squares || result.squares.length === 0) {
     ui.notifications.warn('No squares selected.');
