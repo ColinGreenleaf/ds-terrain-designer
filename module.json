@@ -1,6 +1,7 @@
 {
   "id": "ds-terrain-designer",
   "title": "DS Terrain Designer",
+  "description": "Allows you to paint terrain elevation and qualities directly on to battlemaps to enable automatic elevation adjustment when moving, as well as other elevation dependent features such as high-ground bonuses",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "14",
@@ -19,6 +20,5 @@
       "path": "lang/en.json",
       "flags": {}
     }
-  ],
-  "description": ""
+  ]
 }
