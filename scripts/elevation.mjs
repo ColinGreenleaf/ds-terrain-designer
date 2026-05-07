@@ -369,9 +369,19 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
       await tokenDoc.update({ elevation: 0 });
     } 
 
-    // if (squareElevation > tokenDoc.elevation + 1.9) {
-    //   ui.notifications.warn(`${tokenDoc.name} is moving onto a square with elevation ${squareElevation}, which is more than 1 higher than their current elevation of ${tokenDoc.elevation}.`);
-    // }
+    //scale the token up/down based on elevation for "closer to camera" effect
+    if (game.settings.get(MODULE_ID, "ElevationScaling")) {
+      await tokenDoc.update({
+        "texture.scaleX": 1 + squareElevation/25,
+        "texture.scaleY": 1 + squareElevation/25
+      });
+    } else if (tokenDoc.texture.scaleX != 0) {
+      await tokenDoc.update({
+        "texture.scaleX": 1,
+        "texture.scaleY": 1
+      });
+    }
+  
   }
 });
 

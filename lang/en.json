@@ -5,6 +5,10 @@
         "Name": "Elevation Overlay Enabled",
         "Hint": "Enable the visual overlay on scene canvas to indicate square elevation set by this module."
       },
+      "ElevationScaling": {
+        "Name": "Token Elevation Scaling",
+        "Hint": "when enabled, tokens will scale up/down slightly when moving onto elevated tiles to appear closer or further from the camera."
+      },
       "OverlayStyle": {
         "Name": "Overlay Mode",
         "Hint": "Choose which style of visualization to use. Gradient creates a drop shadow on lower squares, Colored Tile highlights all elevated squares with their designated color.",

@@ -29,6 +29,16 @@ export const registerSettings = () => {
         ...reloadOnChange
     });
 
+    game.settings.register(MODULE_ID, "ElevationScaling", {
+        name: `${MODULE_ID}.Settings.ElevationScaling.Name`,
+        hint: `${MODULE_ID}.Settings.ElevationScaling.Hint`,
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+        ...reloadOnChange
+    });
+
     game.settings.register(MODULE_ID, 'OverlayStyle', {
         name: `${MODULE_ID}.Settings.OverlayStyle.Name`,
         hint: `${MODULE_ID}.Settings.OverlayStyle.Hint`,
