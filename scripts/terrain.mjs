@@ -76,7 +76,7 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
             Brush Size: <strong>${brush}</strong>
             ${isErasing ? `<strong style="color:#ff6666;">Unselect Mode</strong>` : ''}
           </h3>
-        <div style="font-size:13px; color:#ccc">Select Squares. [ ] for brush size.<br>Alt to unselect. Esc to cancel, Enter to confirm.</div>
+        <div style="font-size:13px; color:#ccc">Click/drag squares to select them. Use [ ] to change brush size.<br> Alt+Click to unselect. Esc to cancel, Enter to confirm.</div>
       `;
     };
 
@@ -227,7 +227,6 @@ Hooks.on('updateScene', (scene, delta) => {
 /*   Scene Button Methods                             */
 /* -------------------------------------------------- */
 
-// "Difficult Terrain Painter"
 export const paintDifficultTerrain = async () => {
   ui.notifications.info('Click/drag to paint difficult terrain.');
   
@@ -242,10 +241,14 @@ export const paintDifficultTerrain = async () => {
   const { squares, cleanup } = result;
 
   try {
+    const map = foundry.utils.deepClone(getTerrainMap());
     for (const square of squares) {
-      await setSquareTerrain(square, square.multiplier);
+      const key = toKey(square);
+      if (square.multiplier <= 1) delete map[key];
+      else map[key] = square.multiplier;
     }
-    renderTerrainOverlay(); 
+    await setTerrainMap(map);
+    renderTerrainOverlay();
   } finally {
     cleanup();
   }
@@ -255,7 +258,7 @@ export const paintDifficultTerrain = async () => {
 export const eraseDifficultTerrain = async () => {
   ui.notifications.info('Click/drag to select for clearing difficult terrain.');
   
-  const result = await selectTerrainSquares({erasing: true});
+  const result = await selectTerrainSquares({ erasing: true });
 
   if (!result || !result.squares || result.squares.length === 0) {
     ui.notifications.warn('No squares selected.');
@@ -266,10 +269,12 @@ export const eraseDifficultTerrain = async () => {
   const { squares, cleanup } = result;
 
   try {
+    const map = foundry.utils.deepClone(getTerrainMap());
     for (const square of squares) {
-      await setSquareTerrain(square, 1);
+      delete map[toKey(square)];
     }
-    renderTerrainOverlay(); 
+    await setTerrainMap(map);
+    renderTerrainOverlay();
   } finally {
     cleanup();
   }

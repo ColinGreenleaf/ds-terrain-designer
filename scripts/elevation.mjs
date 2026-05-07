@@ -181,7 +181,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
           }
           <p>Brush Size: <strong>${brush}</strong><p>
         </h3>
-        <div style="font-size:13px; color:#ccc">Click/drag squares to assign them an elevation.<br>Num keys 1-6 or Tab to change elevation. [] to change brush size.<br>Hold Alt to unselect. Esc to cancel, Enter to confirm</div>
+        <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br>Num keys 1-6 or Tab to change elevation. Use [ ] to change brush size.<br>Alt+Click to unselect. Esc to cancel, Enter to confirm</div>
         `
         : `
           <h1>Elevation Eraser</h1>
@@ -189,7 +189,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
             Brush Size: <strong>${brush}</strong>
             ${isErasing ? `<strong style="color:#ff6666;">Unselect Mode</strong>` : ''}
           </h3>
-          <div style="font-size:13px; color:#ccc">Click/drag squares to select them for elevation clearing.<br> Use [ ] to change brush size, hold Alt to unselect.<br> Esc to cancel, Enter to confirm</div>
+          <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br> Use [ ] to change brush size, Alt+Click to unselect.<br> Esc to cancel, Enter to confirm</div>
         `;
     };
 
@@ -694,9 +694,13 @@ export const selectForAssignment = async () => {
   const { squares, cleanup } = result;
 
   try {
+    const map = foundry.utils.deepClone(getElevationMap())
     for (const square of squares) {
-      await setSquareElevation(square, square.elevation);
+      const key = toKey(square);
+      if (square.elevation === 0) delete map[key];
+      else map[key] = square.elevation;
     }
+    await setElevationMap(map);
     renderElevationOverlay();
   } finally {
     cleanup();
@@ -716,9 +720,11 @@ export const selectForClearing = async () => {
 
   const { squares, cleanup } = result;
   try {
+    const map = foundry.utils.deepClone(getElevationMap());
     for (const square of squares) {
-      await clearSquareElevation(square);
+      delete map[toKey(square)];
     }
+    await setElevationMap(map);
     renderElevationOverlay();
   } finally {
     cleanup();
