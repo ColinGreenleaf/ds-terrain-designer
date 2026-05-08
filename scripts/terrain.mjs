@@ -283,9 +283,17 @@ export const eraseDifficultTerrain = async () => {
 // "Clear Scene Difficult Terrain"
 export const clearAllTerrain = async () => {
   if (!canvas.scene) return;
-  await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
-  clearTerrainOverlay();
-  ui.notifications.info('All terrain markers have been cleared.');
+  //dialog confirmation before executing to prevent accidental clearing
+  const confirmClear = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "Confirm Difficult Terrain Clearing" },
+      content: "<p>Are you sure you want to clear all difficult terrain for this scene?</p>"
+  });
+  if (confirmClear) {
+    await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
+    clearTerrainOverlay();
+    ui.notifications.info('All terrain markers have been cleared.');
+  }
+  
 };
 
 

@@ -60,9 +60,16 @@ export const clearSquareElevation = async (square) => {
 
 export const clearAllElevations = async () => {
   if (!canvas.scene) return;
-  await canvas.scene.unsetFlag(MODULE_ID, ELEVATION_FLAG_KEY);
-  clearElevationOverlay();
-  ui.notifications.info('All elevation markers have been cleared.');
+  //dialog confirmation before executing to prevent accidental clearing
+  const confirmClear = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "Confirm Elevation Clearing" },
+      content: "<p>Are you sure you want to clear all elevations for this scene?</p>"
+  });
+  if (confirmClear){
+    await canvas.scene.unsetFlag(MODULE_ID, ELEVATION_FLAG_KEY);
+    clearElevationOverlay();
+    ui.notifications.info('All elevation markers have been cleared.');
+  }
 };
 
 
@@ -181,7 +188,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
           }
           <p>Brush Size: <strong>${brush}</strong><p>
         </h3>
-        <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br>Num keys 1-6 or Tab to change elevation. Use [ ] to change brush size.<br>Alt+Click to unselect. Esc to cancel, Enter to confirm</div>
+        <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br>Num keys 1-8 or Tab to change elevation. Use [ ] to change brush size.<br>Alt+Click to unselect. Esc to cancel, Enter to confirm</div>
         `
         : `
           <h1>Elevation Eraser</h1>
@@ -312,6 +319,15 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       if (useElevation && event.key >= '1' && event.key <= '6') {
         handleKey(event, () => {currentElevationIdx = ELEVATIONS.indexOf(parseInt(event.key)); updateHud(); drawHighlights(event.altKey);}); return;
       }
+
+      //add keybinds for negative elevations
+      if (useElevation && event.key == '7') {
+        handleKey(event, () => {currentElevationIdx = 0; updateHud(); drawHighlights(event.altKey);}); return;
+      }
+      if (useElevation && event.key == '8') {
+        handleKey(event, () => {currentElevationIdx = 1; updateHud(); drawHighlights(event.altKey);}); return;
+      }
+
 
       if (event.key === 'Escape')       handleKey(event, () => { cleanup(); resolve(null); });
       else if (event.key === 'Enter')   handleKey(event, () => { overlay.off('pointermove', onPointerMove); hoverSquare = null; drawHighlights(); resolve({ squares: selectedSquares, cleanup }); });
