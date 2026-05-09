@@ -387,17 +387,33 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
 
     //scale the token up/down based on elevation for "closer to camera" effect
     if (game.settings.get(MODULE_ID, "ElevationScaling")) {
+      // If no base scale stored yet, record the token's current scale as the baseline
+      let baseScale = tokenDoc.getFlag(MODULE_ID, 'baseScale');
+      if (baseScale == null) {
+        baseScale = tokenDoc.texture.scaleX;
+        await tokenDoc.setFlag(MODULE_ID, 'baseScale', baseScale);
+      }
+
+      // If returning to elevation 0, restore base scale, otherwise alter scale relative to elevation
+      if (squareElevation === 0) {
+        await tokenDoc.update({
+          "texture.scaleX": baseScale,
+          "texture.scaleY": baseScale,
+        });
+      } else {
+        await tokenDoc.update({
+          "texture.scaleX": baseScale + squareElevation / 25,
+          "texture.scaleY": baseScale + squareElevation / 25,
+        });
+      }
+    } else if (tokenDoc.texture.scaleX !== 0) {
+      // Scaling disabled — restore to base if we have one, otherwise 1
+      const baseScale = tokenDoc.getFlag(MODULE_ID, 'baseScale') ?? 1;
       await tokenDoc.update({
-        "texture.scaleX": 1 + squareElevation/25,
-        "texture.scaleY": 1 + squareElevation/25
-      });
-    } else if (tokenDoc.texture.scaleX != 0) {
-      await tokenDoc.update({
-        "texture.scaleX": 1,
-        "texture.scaleY": 1
+        "texture.scaleX": baseScale,
+        "texture.scaleY": baseScale,
       });
     }
-  
   }
 });
 
