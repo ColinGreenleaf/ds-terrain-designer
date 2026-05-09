@@ -41,6 +41,10 @@
           "dense": "Dense"
         }
       },
+      "UseRegion": {
+        "Name": "Paint Region For Difficult Terrain",
+        "Hint": "If enabled, painting difficult terrain will also create a Region with a \"Modify Movement Cost\" behavior. Erasing squares from the overlay will also remove them from this Region."
+      },
 
       "ElevationColorMenu": {
         "Name": "Set Elevation Colors",

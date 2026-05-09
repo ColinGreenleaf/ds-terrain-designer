@@ -42,6 +42,52 @@ export const setSquareTerrain = async (square, multiplier) => {
   await setTerrainMap(map);
 };
 
+//function to sync difficult terrain region to one combined region so each square doesn't spawn it's own individual region
+const syncRegionsWithFlags = async () => {
+  if (!game.settings.get(MODULE_ID, "UseRegion")) return;
+  const map = getTerrainMap();
+  const GRID = canvas.grid.size;
+  const regionName = "Difficult Terrain (DSTD)";
+  
+  // Find existing region
+  let region = canvas.scene.regions.find(r => r.name === regionName);
+  
+  // Generate shapes based on the current flag map
+  const shapes = Object.keys(map).map(key => {
+    const [x, y] = key.split(',').map(Number);
+    return {
+      type: "rectangle",
+      x: x * GRID,
+      y: y * GRID,
+      width: GRID,
+      height: GRID
+    };
+  });
+
+  if (shapes.length === 0) {
+    if (region) await region.delete();
+    return;
+  }
+
+  const regionData = {
+    name: regionName,
+    color: "#ff0000",
+    shapes: shapes,
+    behaviors: [{
+      type: "modifyMovementCost",
+      name: "Modify Movement Cost",
+      enabled: true,
+      system: { difficulties: { walk: 2 } }
+    }]
+  };
+
+  if (region) {
+    await region.update({ shapes: shapes });
+  } else {
+    await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
+  }
+};
+
 /* -------------------------------------------------- */
 /*   Sqaure Selection Function                        */
 /* -------------------------------------------------- */
@@ -240,39 +286,16 @@ export const paintDifficultTerrain = async () => {
   const { squares, cleanup } = result;
   const GRID = canvas.grid.size;
 
-  // Define the region data
   try {
     const map = foundry.utils.deepClone(getTerrainMap());
     for (const square of squares) {
       const key = toKey(square);
       if (square.multiplier <= 1) delete map[key];
       else map[key] = square.multiplier;
-
-      //spawn a movement cost x 2 region at the square
-      const dtRegionData = {
-        name: "Difficult Terrain (DSTD)",
-        color: "#ff0000", // Red
-        shapes: [{
-          type: "rectangle",
-          x: square.x * GRID,
-          y: square.y * GRID,
-          width: GRID,
-          height: GRID
-        }],
-        behaviors: [{
-          type: "modifyMovementCost",
-          name: "Modify Movment Cost",
-          enabled: true,
-          system: {
-            difficulties: {
-              walk: 2
-            }
-          }
-        }]
-      };
-      await canvas.scene.createEmbeddedDocuments("Region", [dtRegionData]);
     }
     await setTerrainMap(map);
+    //match the difficult terrain region to the marked squares
+    await syncRegionsWithFlags();
     renderTerrainOverlay();
   } finally {
     cleanup();
@@ -302,25 +325,11 @@ try {
       //remove squares from overlay
       const key = toKey(square);
       delete map[key];
-
-      //delete difficult terrain regions at selected square
-      const x = square.x * GRID;
-      const y = square.y * GRID;
-
-      const region = canvas.scene.regions.find(r => 
-        r.name === "Difficult Terrain (DSTD)" && 
-        r.shapes[0]?.x === x && 
-        r.shapes[0]?.y === y
-      );
-
-      if (region) regionsToDelete.push(region.id);
-    }
-
-    if (regionsToDelete.length > 0) {
-      await canvas.scene.deleteEmbeddedDocuments("Region", regionsToDelete);
     }
 
     await setTerrainMap(map);
+    //match the difficult terrain region to the marked squares
+    await syncRegionsWithFlags();
     renderTerrainOverlay();
   } finally {
     cleanup();
@@ -338,15 +347,9 @@ export const clearAllTerrain = async () => {
   if (confirmClear) {
     await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
     clearTerrainOverlay();
-
-    //delete all regions created by this module
-    const regionIds = canvas.scene.regions
-      .filter(r => r.name === "Difficult Terrain (DSTD)")
-      .map(r => r.id);
-
-    if (regionIds.length > 0) {
-      await canvas.scene.deleteEmbeddedDocuments("Region", regionIds);
-    }
+    //find region created by this module (if any) and delete it
+    const region = canvas.scene.regions.find(r => r.name === "Difficult Terrain (DSTD)");
+    if (region) await region.delete();
 
     ui.notifications.info('All terrain markers and regions have been cleared.');
   }

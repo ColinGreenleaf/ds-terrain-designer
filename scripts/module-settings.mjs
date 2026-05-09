@@ -108,6 +108,17 @@ export const registerSettings = () => {
         });
     }    
 
+    game.settings.register(MODULE_ID, "UseRegion", {
+        name: `${MODULE_ID}.Settings.UseRegion.Name`,
+        hint: `${MODULE_ID}.Settings.UseRegion.Hint`,
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+        ...reloadOnChange        
+    });
+
+
     game.settings.register(MODULE_ID, 'TerrainStyle', {
         name: `${MODULE_ID}.Settings.TerrainStyle.Name`,
         hint: `${MODULE_ID}.Settings.TerrainStyle.Hint`,
@@ -128,6 +139,7 @@ export const registerSettings = () => {
         default: '#000000',
         ...reloadOnChange
     });
+
 
 
     Hooks.on("renderSettingsConfig", (app, html) => {
@@ -152,7 +164,7 @@ export const registerSettings = () => {
         row.insertAdjacentHTML('beforebegin', '<p style="font-size: 20px;">Elevation Overlay Config</p>');
         }   
 
-        secTop = html.querySelector(`select[name="${MODULE_ID}.TerrainStyle"]`)
+        secTop = html.querySelector(`input[name="${MODULE_ID}.UseRegion"]`)
             .closest('.form-group');
         if (secTop) {
         const row = secTop.closest('.form-group');
