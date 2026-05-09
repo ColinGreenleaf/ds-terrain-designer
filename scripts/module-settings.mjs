@@ -39,6 +39,16 @@ export const registerSettings = () => {
         ...reloadOnChange
     });
 
+    game.settings.register(MODULE_ID, "HighGroundReminder", {
+        name: `${MODULE_ID}.Settings.HighGroundReminder.Name`,
+        hint: `${MODULE_ID}.Settings.HighGroundReminder.Hint`,
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false,
+        ...reloadOnChange
+    });
+
     game.settings.register(MODULE_ID, 'OverlayStyle', {
         name: `${MODULE_ID}.Settings.OverlayStyle.Name`,
         hint: `${MODULE_ID}.Settings.OverlayStyle.Hint`,

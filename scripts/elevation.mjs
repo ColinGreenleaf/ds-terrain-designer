@@ -893,9 +893,9 @@ Hooks.once('ready', () => {
 
       if ((targetElevation + targetSize) <= userElevation) {
         modifiers.edges += 1;
+        if (game.settings.get(MODULE_ID, 'HighGroundReminder')) ui.notifications.info(`${userToken.actor.name} attacks ${target.actor.name} from high ground, gaining an edge on the attack.`);
       }
     }
-
     return modifiers;
   };
 

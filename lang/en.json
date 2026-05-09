@@ -7,7 +7,11 @@
       },
       "ElevationScaling": {
         "Name": "Token Elevation Scaling",
-        "Hint": "when enabled, tokens will scale up/down slightly when moving onto elevated tiles to appear closer or further from the camera."
+        "Hint": "When enabled, tokens will scale up/down slightly when moving onto elevated tiles to appear closer or further from the camera."
+      },
+      "HighGroundReminder": {
+        "Name": "High Ground Edge Reminder",
+        "Hint": "when enabled, any attacks benefitting from \"High Ground\" rules will show a notification for the attacker when used, to let them know where the edge is coming from."
       },
       "OverlayStyle": {
         "Name": "Overlay Mode",
