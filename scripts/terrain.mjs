@@ -67,7 +67,6 @@ export const selectTerrainSquares = ({erasing = false} = {}) => {
     //hud handling
     const updateHud = () => {
       if (!hud) return;
-      console.log(isErasing);
       const brush = BRUSH_SIZES[currentBrushIdx];
       const mult = 2;
       hud.innerHTML = `
@@ -239,13 +238,39 @@ export const paintDifficultTerrain = async () => {
   }
 
   const { squares, cleanup } = result;
+  const GRID = canvas.grid.size;
 
+  // Define the region data
   try {
     const map = foundry.utils.deepClone(getTerrainMap());
     for (const square of squares) {
       const key = toKey(square);
       if (square.multiplier <= 1) delete map[key];
       else map[key] = square.multiplier;
+
+      //spawn a movement cost x 2 region at the square
+      const dtRegionData = {
+        name: "Difficult Terrain (DSTD)",
+        color: "#ff0000", // Red
+        shapes: [{
+          type: "rectangle",
+          x: square.x * GRID,
+          y: square.y * GRID,
+          width: GRID,
+          height: GRID
+        }],
+        behaviors: [{
+          type: "modifyMovementCost",
+          name: "Modify Movment Cost",
+          enabled: true,
+          system: {
+            difficulties: {
+              walk: 2
+            }
+          }
+        }]
+      };
+      await canvas.scene.createEmbeddedDocuments("Region", [dtRegionData]);
     }
     await setTerrainMap(map);
     renderTerrainOverlay();
@@ -267,12 +292,34 @@ export const eraseDifficultTerrain = async () => {
   }
 
   const { squares, cleanup } = result;
+  const GRID = canvas.grid.size;
 
-  try {
+try {
     const map = foundry.utils.deepClone(getTerrainMap());
+    const regionsToDelete = [];
+
     for (const square of squares) {
-      delete map[toKey(square)];
+      //remove squares from overlay
+      const key = toKey(square);
+      delete map[key];
+
+      //delete difficult terrain regions at selected square
+      const x = square.x * GRID;
+      const y = square.y * GRID;
+
+      const region = canvas.scene.regions.find(r => 
+        r.name === "Difficult Terrain (DSTD)" && 
+        r.shapes[0]?.x === x && 
+        r.shapes[0]?.y === y
+      );
+
+      if (region) regionsToDelete.push(region.id);
     }
+
+    if (regionsToDelete.length > 0) {
+      await canvas.scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+    }
+
     await setTerrainMap(map);
     renderTerrainOverlay();
   } finally {
@@ -291,7 +338,17 @@ export const clearAllTerrain = async () => {
   if (confirmClear) {
     await canvas.scene.unsetFlag(MODULE_ID, TERRAIN_FLAG_KEY);
     clearTerrainOverlay();
-    ui.notifications.info('All terrain markers have been cleared.');
+
+    //delete all regions created by this module
+    const regionIds = canvas.scene.regions
+      .filter(r => r.name === "Difficult Terrain (DSTD)")
+      .map(r => r.id);
+
+    if (regionIds.length > 0) {
+      await canvas.scene.deleteEmbeddedDocuments("Region", regionIds);
+    }
+
+    ui.notifications.info('All terrain markers and regions have been cleared.');
   }
   
 };

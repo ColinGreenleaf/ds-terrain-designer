@@ -16,7 +16,6 @@ const defaultElevationColors = {
 
 
 export const registerSettings = () => {
-    console.log('registering settings')
   const reloadOnChange = { onChange: () => SettingsConfig.reloadConfirm({ world: true }) };
 
     game.settings.register(MODULE_ID, "OverlayVisualization", {
