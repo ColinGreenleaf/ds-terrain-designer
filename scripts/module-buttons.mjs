@@ -1,5 +1,7 @@
 import {selectForAssignment, selectForClearing, clearAllElevations, checkSquareElevation} from "./elevation.mjs";
 import {paintDifficultTerrain, eraseDifficultTerrain, clearAllTerrain} from "./terrain.mjs";
+import { DesignerPanel} from "./designer-panel.mjs";
+
 
 
 export const registerModuleButtons = () => {    
@@ -69,6 +71,16 @@ export const registerModuleButtons = () => {
                 button: true,
                 visible: game.user.isGM,
                 onChange: () => {clearAllTerrain()}
+            },
+            'designer-panel': {
+                name: 'designer-panel',
+                title: 'Terrain Designer Panel',
+                icon: 'fas fa-layer-group',
+                button: true,
+                visible: game.user.isGM,
+                onChange: () => {
+                    new DesignerPanel().render(true);
+                }
             },
         }
     }
