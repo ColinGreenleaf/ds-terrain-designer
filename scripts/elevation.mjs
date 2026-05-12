@@ -179,7 +179,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       const brush = BRUSH_SIZES[currentBrushIdx];
       hud.innerHTML = useElevation
         ? `
-        <h1>Elevation Builder</h1> 
+        <h1>Elevation Painter</h1> 
         <h3 style="display: flex; justify-content: space-between;">
           ${isErasing
             ? `<p><strong style="color:#ff6666;">Unselect Mode</strong><p>`

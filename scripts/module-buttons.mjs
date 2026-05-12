@@ -16,30 +16,30 @@ export const registerModuleButtons = () => {
         visible: true,
 
         tools: {
-            'elevation': {
-                name: 'elevation',
-                title: 'Elevation Painter',
-                icon: 'fas fa-arrow-up',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {selectForAssignment()}
-            },
-            'clear-elevation': {
-                name: 'clear-elevation',
-                title: 'Elevation Eraser',
-                icon: 'fas fa-eraser',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {selectForClearing()}
-            },
-            'clear-all-elevation': {
-                name: 'clear-all-elevation',
-                title: 'Clear Scene Elevation',
-                icon: 'fas fa-trash-alt',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {clearAllElevations()}
-            },
+            // 'elevation': {
+            //     name: 'elevation',
+            //     title: 'Elevation Painter',
+            //     icon: 'fas fa-arrow-up',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {selectForAssignment()}
+            // },
+            // 'clear-elevation': {
+            //     name: 'clear-elevation',
+            //     title: 'Elevation Eraser',
+            //     icon: 'fas fa-eraser',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {selectForClearing()}
+            // },
+            // 'clear-all-elevation': {
+            //     name: 'clear-all-elevation',
+            //     title: 'Clear Scene Elevation',
+            //     icon: 'fas fa-trash-alt',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {clearAllElevations()}
+            // },
             'check-elevation': {
                 name: 'check-elevation',
                 title: 'Check Elevation',
@@ -48,30 +48,30 @@ export const registerModuleButtons = () => {
                 visible: true,
                 onChange: () => {checkSquareElevation()}
             },
-            'terrain': {
-                name: 'terrain',
-                title: 'Difficult Terrain Painter',
-                icon: 'fas fa-hill-rockslide',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {paintDifficultTerrain()}
-            },
-            'clear-terrain': {
-                name: 'clear-terrain',
-                title: 'Difficult Terrain Eraser',
-                icon: 'fas fa-eraser',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {eraseDifficultTerrain()}
-            },
-            'clear-all-terrain': {
-                name: 'clear-all-terrain',
-                title: 'Clear Scene Difficult Terrain',
-                icon: 'fas fa-trash-alt',
-                button: true,
-                visible: game.user.isGM,
-                onChange: () => {clearAllTerrain()}
-            },
+            // 'terrain': {
+            //     name: 'terrain',
+            //     title: 'Difficult Terrain Painter',
+            //     icon: 'fas fa-hill-rockslide',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {paintDifficultTerrain()}
+            // },
+            // 'clear-terrain': {
+            //     name: 'clear-terrain',
+            //     title: 'Difficult Terrain Eraser',
+            //     icon: 'fas fa-eraser',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {eraseDifficultTerrain()}
+            // },
+            // 'clear-all-terrain': {
+            //     name: 'clear-all-terrain',
+            //     title: 'Clear Scene Difficult Terrain',
+            //     icon: 'fas fa-trash-alt',
+            //     button: true,
+            //     visible: game.user.isGM,
+            //     onChange: () => {clearAllTerrain()}
+            // },
             'designer-panel': {
                 name: 'designer-panel',
                 title: 'Terrain Designer Panel',
