@@ -1,4 +1,5 @@
 <div>
+
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <h2>Elevation</h2>
     <div style="display:flex; gap: 2px; align-items:center;">
@@ -16,4 +17,33 @@
       <button class="clear-difficult-terrain" title="Clear All Difficult Terrain"><i class="fas fa-trash"></i></button>
     </div>
   </div>
+  
+  {{#if toolState.activeTool}}
+  <hr>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <p>Active Tool:</p>
+      <div style="display:flex; gap: 2px;">
+        <button class="cancel-tool" style="background: none; color: #aaa;" title="Cancel Tool"><i class="fas fa-xmark"></i></button>
+        <button class="confirm-tool" style="background: none; color: #aaa;" title="Confirm Selection"><i class="fas fa-check"></i></button>
+      </div>
+  </div>
+  <div style="padding: 12px; border-radius: 6px; border-left: 2px solid #6496c8; margin-bottom: 12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin: 0 0 8px 0; color: #6496c8;">{{toolState.activeTool}}</h3>
+    </div>
+    {{#if toolState.elevation}}
+    <p style="margin: 4px 0; font-size: 24px;">Elevation: <strong style="color: {{toolState.elevationColor}};">{{toolState.elevation}}</strong></p>
+    {{/if}}
+    {{#if toolState.brushSize}}
+    <p style="margin: 4px 0; font-size: 24px;">Brush Size: <strong>{{toolState.brushSize}}</strong></p>
+    {{/if}}
+    {{#if toolState.mode}}
+    <p style="margin: 4px 0; font-size: 24px;">Mode: <strong style="{{#if toolState.isErasing}}color: #ff6666;{{/if}}">{{toolState.mode}}</strong></p>
+    {{/if}}
+    {{#if toolState.instructions}}
+    <div style="font-size: 12px; color: #aaa; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">{{{toolState.instructions}}}</div>
+    {{/if}}
+  </div>
+  {{/if}}
+  
 </div>

@@ -1,3 +1,5 @@
+import { DesignerPanel } from "./designer-panel.mjs";
+
 const ELEVATION_FLAG_KEY = 'elevation-levels';
 const MODULE_ID = 'ds-terrain-designer';
 const ELEVATION_OVERLAY_NAME = 'elevation-overlay-container';
@@ -155,6 +157,7 @@ const getGradientTexture = () => {
 export const selectSquares = ({ useElevation = false} = {}) => {
   return new Promise((resolve) => {
     const stage = canvas.app.stage;
+    const panel = DesignerPanel.getInstance();
     const selectedSquares = [];
     const graphics = new PIXI.Graphics();
     stage.addChild(graphics);
@@ -171,53 +174,68 @@ export const selectSquares = ({ useElevation = false} = {}) => {
     let hoverSquare = null;
     let isPainting = false;
     let isErasing = false;
+    let cleanupDone = false;
+    let resolved = false;
 
-
-    //hud handling
-    const updateHud = () => {
-      if (!hud) return;
-      const brush = BRUSH_SIZES[currentBrushIdx];
-      hud.innerHTML = useElevation
-        ? `
-        <h1>Elevation Painter</h1> 
-        <h3 style="display: flex; justify-content: space-between;">
-          ${isErasing
-            ? `<p><strong style="color:#ff6666;">Unselect Mode</strong><p>`
-            : `<p>Elevation: <strong style="color: #${getElevationColor(ELEVATIONS[currentElevationIdx]).toString(16).padStart(6, "0")};">${ELEVATIONS[currentElevationIdx]}</strong><p>
-              `
-          }
-          <p>Brush Size: <strong>${brush}</strong><p>
-        </h3>
-        <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br>Num keys 1-8 or Tab to change elevation. Use [ ] to change brush size.<br>Alt+Click to unselect. Esc to cancel, Enter to confirm</div>
-        `
-        : `
-          <h1>Elevation Eraser</h1>
-          <h3>
-            Brush Size: <strong>${brush}</strong>
-            ${isErasing ? `<strong style="color:#ff6666;">Unselect Mode</strong>` : ''}
-          </h3>
-          <div style="font-size:13px; color:#ccc">Click/drag squares to select them.<br> Use [ ] to change brush size, Alt+Click to unselect.<br> Esc to cancel, Enter to confirm</div>
-        `;
+    const cleanup = () => {
+      if (cleanupDone) return;
+      cleanupDone = true;
+      overlay.off('pointermove', onPointerMove);
+      overlay.off('pointerdown', onPointerDown);
+      overlay.off('pointerup', onPointerUp);
+      stage.removeChild(overlay);
+      stage.removeChild(graphics);
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
+      panel.clearToolStatus();
     };
 
-    let hud = document.createElement("div");
-    hud.style.cssText = `
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.75);
-      color: white;
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 18px;
-      font-family: sans-serif;
-      pointer-events: none;
-      z-index: 9999;
-      border: 2px solid #aaa;
-    `;
-    document.body.appendChild(hud);
-    updateHud();
+    const resolveSelection = (result) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(result);
+    };
+
+    const cancelCurrentTool = () => {
+      cleanup();
+      resolveSelection(null);
+    };
+
+    const confirmCurrentTool = () => {
+      overlay.off('pointermove', onPointerMove);
+      hoverSquare = null;
+      drawHighlights();
+      resolveSelection({ squares: selectedSquares, cleanup });
+    };
+
+    panel.setActiveTool(cancelCurrentTool, confirmCurrentTool);
+
+    //panel status handling
+    const updatePanelStatus = () => {
+      const brush = BRUSH_SIZES[currentBrushIdx];
+      const currentElevation = ELEVATIONS[currentElevationIdx];
+      const elevColor = useElevation ? `#${getElevationColor(currentElevation).toString(16).padStart(6, "0")}` : null;
+      
+      const toolName = useElevation 
+        ? ('Paint Elevation')
+        : 'Erase Elevation';
+      
+      const instructions = useElevation
+        ? 'Click/drag squares to select.<br>Num keys 1-8 or Tab to change elevation.<br>Use [ ] to change brush size.<br>Alt+Click to unselect. Esc to cancel, Enter to confirm.'
+        : 'Click/drag squares to select.<br>Use [ ] to change brush size.<br>Hold Alt to unselect. Esc to cancel, Enter to confirm.';
+
+      panel.updateToolStatus({
+        activeTool: toolName,
+        mode: isErasing ? 'Unselect' : 'Select',
+        elevation: useElevation ? currentElevation : null,
+        elevationColor: elevColor,
+        brushSize: brush,
+        isErasing: isErasing,
+        instructions: instructions,
+      });
+    };
+
+    updatePanelStatus();
 
     //draw highlights on selected squares and hovered
     const drawHighlights = (altHeld = false) => {
@@ -287,7 +305,7 @@ export const selectSquares = ({ useElevation = false} = {}) => {
       hoverSquare = toGrid(event.data.getLocalPosition(stage));
       if (event.altKey !== isErasing) {
         isErasing = event.altKey;
-        updateHud();
+        updatePanelStatus();
       }
       if (isPainting) {
         event.altKey ? eraseBrush(hoverSquare) : paintBrush(hoverSquare);
@@ -317,44 +335,31 @@ export const selectSquares = ({ useElevation = false} = {}) => {
 
     const onKeyDown = (event) => {
       if (useElevation && event.key >= '1' && event.key <= '6') {
-        handleKey(event, () => {currentElevationIdx = ELEVATIONS.indexOf(parseInt(event.key)); updateHud(); drawHighlights(event.altKey);}); return;
+        handleKey(event, () => {currentElevationIdx = ELEVATIONS.indexOf(parseInt(event.key)); updatePanelStatus(); drawHighlights(event.altKey);}); return;
       }
 
       //add keybinds for negative elevations
       if (useElevation && event.key == '7') {
-        handleKey(event, () => {currentElevationIdx = 0; updateHud(); drawHighlights(event.altKey);}); return;
+        handleKey(event, () => {currentElevationIdx = 0; updatePanelStatus(); drawHighlights(event.altKey);}); return;
       }
       if (useElevation && event.key == '8') {
-        handleKey(event, () => {currentElevationIdx = 1; updateHud(); drawHighlights(event.altKey);}); return;
+        handleKey(event, () => {currentElevationIdx = 1; updatePanelStatus(); drawHighlights(event.altKey);}); return;
       }
 
 
-      if (event.key === 'Escape')       handleKey(event, () => { cleanup(); resolve(null); });
-      else if (event.key === 'Enter')   handleKey(event, () => { overlay.off('pointermove', onPointerMove); hoverSquare = null; drawHighlights(); resolve({ squares: selectedSquares, cleanup }); });
-      else if (event.key === '[')       handleKey(event, () => { currentBrushIdx = (currentBrushIdx - 1 + BRUSH_SIZES.length) % BRUSH_SIZES.length; updateHud(); drawHighlights(event.altKey); });
-      else if (event.key === ']')       handleKey(event, () => { currentBrushIdx = (currentBrushIdx + 1) % BRUSH_SIZES.length; updateHud(); drawHighlights(event.altKey); });
-      else if (event.key === 'Tab')     handleKey(event, () => { currentElevationIdx = (currentElevationIdx + 1) % ELEVATIONS.length; updateHud(); drawHighlights(event.altKey); });
+      if (event.key === 'Escape')       handleKey(event, () => { cleanup(); resolveSelection(null); });
+      else if (event.key === 'Enter')   handleKey(event, () => { overlay.off('pointermove', onPointerMove); hoverSquare = null; drawHighlights(); resolveSelection({ squares: selectedSquares, cleanup }); });
+      else if (event.key === '[')       handleKey(event, () => { currentBrushIdx = (currentBrushIdx - 1 + BRUSH_SIZES.length) % BRUSH_SIZES.length; updatePanelStatus(); drawHighlights(event.altKey); });
+      else if (event.key === ']')       handleKey(event, () => { currentBrushIdx = (currentBrushIdx + 1) % BRUSH_SIZES.length; updatePanelStatus(); drawHighlights(event.altKey); });
+      else if (event.key === 'Tab')     handleKey(event, () => { currentElevationIdx = (currentElevationIdx + 1) % ELEVATIONS.length; updatePanelStatus(); drawHighlights(event.altKey); });
     };
 
     const onKeyUp = (event) => {
       if (event.key === 'Alt') {
         isErasing = false;
-        updateHud();
+        updatePanelStatus();
         drawHighlights(false);
       }
-    };
-
-
-    //cleanup and init
-    const cleanup = () => {
-      overlay.off('pointermove', onPointerMove);
-      overlay.off('pointerdown', onPointerDown);
-      overlay.off('pointerup', onPointerUp);
-      stage.removeChild(overlay);
-      stage.removeChild(graphics);
-      document.removeEventListener('keydown', onKeyDown);
-      document.removeEventListener('keyup', onKeyUp);
-      document.body.removeChild(hud);
     };
 
     overlay.on('pointermove', onPointerMove);
@@ -714,11 +719,11 @@ Hooks.on('updateScene', (scene, delta) => {
 
 // "Elevation Painter"
 export const selectForAssignment = async () => {
-  ui.notifications.info('Click/drag squares to paint elevation.');
+  // ui.notifications.info('Click/drag squares to paint elevation.');
   const result = await selectSquares({ useElevation: true});
 
   if (!result || !result.squares || result.squares.length === 0) {
-    ui.notifications.warn('No squares selected.');
+    // ui.notifications.warn('No squares selected.');
     if (result?.cleanup) result.cleanup();
     return;
   }
@@ -741,11 +746,11 @@ export const selectForAssignment = async () => {
 
 // "Elevation Eraser"
 export const selectForClearing = async () => {
-    ui.notifications.info('Click squares to select them.');
+    // ui.notifications.info('Click/drag squares to clear elevation.');
 
   const result = await selectSquares();
   if (!result || !result.squares || result.squares.length === 0) {
-    ui.notifications.warn('No squares selected.');
+    // ui.notifications.warn('No squares selected.');
     if (result && result.cleanup) result.cleanup();
     return;
   }

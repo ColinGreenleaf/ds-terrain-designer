@@ -21,11 +21,83 @@ export class DesignerPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     },
   };
 
-  // Replaces getData(options)
+  static _instance = null;
+
+  constructor(options) {
+    super(options);
+    this.toolState = {
+      activeTool: null,
+      mode: null,
+      elevation: null,
+      brushSize: null,
+      isErasing: false,
+      instructions: null,
+    };
+    this.activeToolCancel = null;
+    this.activeToolConfirm = null;
+  }
+
+  static getInstance() {
+    if (!DesignerPanel._instance || !DesignerPanel._instance.element) {
+      DesignerPanel._instance = new DesignerPanel();
+    }
+    return DesignerPanel._instance;
+  }
+
+  setActiveTool(cancelFn, confirmFn) {
+    if (this.activeToolCancel && this.activeToolCancel !== cancelFn) {
+      this.activeToolCancel();
+    }
+    this.activeToolCancel = cancelFn;
+    this.activeToolConfirm = confirmFn;
+  }
+
+  cancelActiveTool() {
+    if (this.activeToolCancel) {
+      const cancel = this.activeToolCancel;
+      this.activeToolCancel = null;
+      this.activeToolConfirm = null;
+      cancel();
+    }
+  }
+
+  confirmActiveTool() {
+    if (this.activeToolConfirm) {
+      const confirm = this.activeToolConfirm;
+      this.activeToolCancel = null;
+      this.activeToolConfirm = null;
+      confirm();
+    }
+  }
+
   async _prepareContext(options) {
     return {
-      // ...your data here
+      toolState: this.toolState,
     };
+  }
+
+  updateToolStatus(updates) {
+    this.toolState = { ...this.toolState, ...updates };
+    this.render(false);
+  }
+
+  close(options) {
+    this.cancelActiveTool();
+    return super.close(options);
+  }
+
+  clearToolStatus() {
+    this.activeToolCancel = null;
+    this.activeToolConfirm = null;
+    this.toolState = {
+      activeTool: null,
+      mode: null,
+      elevation: null,
+      brushSize: null,
+      isErasing: false,
+      instructions: null,
+    };
+    this.render(false);
   }
 
   // Replaces activateListeners(html)
@@ -66,6 +138,18 @@ export class DesignerPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       console.log("Clear all difficult terrain button clicked");
       ev.preventDefault();
       clearAllTerrain();
+    });
+
+    html.find(".cancel-tool").on("click", ev => {
+      this.cancelActiveTool();
+    });
+
+    html.find(".confirm-tool").on("click", ev => {
+      this.confirmActiveTool();
+    });
+
+    html.find(".confirm-tool").on("click", ev => {
+      //complete the active tool's action
     });
   }
 }

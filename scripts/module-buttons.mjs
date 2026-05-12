@@ -79,7 +79,7 @@ export const registerModuleButtons = () => {
                 button: true,
                 visible: game.user.isGM,
                 onChange: () => {
-                    new DesignerPanel().render(true);
+                    DesignerPanel.getInstance().render(true);
                 }
             },
         }
