@@ -1,9 +1,8 @@
 import { getSquareElevation } from './elevation.mjs';
+import { getSquareTerrain } from './terrain.mjs';
 
 const MOVEMENT_RANGE_NAME = 'movement-range-container';
 const MODULE_ID = 'ds-terrain-designer';
-
-//DEFUNCT FOR NOW
 
 /* -------------------------------------------------- */
 /*   BFS Logic                                        */
@@ -50,28 +49,32 @@ const computeReachable = (token, multiplier = 1) => {
 const getMoveCost = (movementTypes, from, to, costSoFar) => {
   const eFrom   = getSquareElevation(from);
   const eTo     = getSquareElevation(to);
+  const terrain  = getSquareTerrain(to); //this will return 2 if the square is difficult terrain, 1 otherwise
   const diff    = eTo - eFrom;
   const absDiff = Math.abs(diff);
 
-  if (absDiff < 2) return 1;
+  let cost = 1;
+  // if (absDiff < 2) return 1;
 
   // Climbing down
   if (diff <= -2) {
-    return movementTypes?.has('climb') ? absDiff : 2 * absDiff - 1;
+    cost = movementTypes?.has('climb') ? absDiff : 2 * absDiff - 1;
   }
 
   // Climbing up
   if (diff >= 2) {
-    if (movementTypes?.has('climb')) return absDiff;
+    if (movementTypes?.has('climb')) cost = absDiff;
     if (movementTypes?.has('fly')) {
       const freeRemaining = costSoFar - eFrom;
       const extraVertical = Math.max(0, absDiff - Math.max(0, freeRemaining));
-      return 1 + extraVertical;
+      cost = 1 + extraVertical;
     }
-    return 2 * absDiff - 1;
+    cost = 2 * absDiff - 1;
   }
 
-  return 1;
+  if (terrain === 2) cost += 1; // add cost for difficult terrain
+
+  return cost;
 };
 
 
