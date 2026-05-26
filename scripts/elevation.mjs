@@ -384,6 +384,9 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
     const gridY = Math.floor((changes.y ?? tokenDoc.y) / gridSize);
     const squareElevation = getSquareElevation({ x: gridX, y: gridY });
     
+    //if the actor is flying as their movement, dont change their elevation if it would drop them down
+    if (squareElevation < tokenDoc.elevation && tokenDoc.movementAction === 'fly') return;
+    
     if (squareElevation !== 0 && tokenDoc.elevation !== squareElevation) {
       await tokenDoc.update({ elevation: squareElevation });
     } else if (squareElevation === 0 && tokenDoc.elevation !== 0) {
