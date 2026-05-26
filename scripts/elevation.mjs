@@ -378,6 +378,8 @@ export const selectSquares = ({ useElevation = false} = {}) => {
 /* -------------------------------------------------- */
 Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
   if (game.modules.get('draw-steel-combat-tools')?.api?.isFMActive?.()) return;
+
+  //if there is a change in token position, set elevation to match the square's elevation
   if (changes.x !== undefined || changes.y !== undefined) {
     const gridSize = canvas.grid.size;
     const gridX = Math.floor((changes.x ?? tokenDoc.x) / gridSize);
@@ -392,7 +394,12 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
     } else if (squareElevation === 0 && tokenDoc.elevation !== 0) {
       await tokenDoc.update({ elevation: 0 });
     } 
+  }
 
+  //if there is a change in token elevation, update
+  if (changes.elevation !== undefined && game.settings.get(MODULE_ID, "ElevationScaling")) {
+    const targetElevation = changes.elevation;
+    
     //scale the token up/down based on elevation for "closer to camera" effect
     if (game.settings.get(MODULE_ID, "ElevationScaling")) {
       // If no base scale stored yet, record the token's current scale as the baseline
@@ -403,15 +410,15 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
       }
 
       // If returning to elevation 0, restore base scale, otherwise alter scale relative to elevation
-      if (squareElevation === 0) {
+      if (targetElevation === 0) {
         await tokenDoc.update({
           "texture.scaleX": baseScale,
           "texture.scaleY": baseScale,
         });
       } else {
         await tokenDoc.update({
-          "texture.scaleX": baseScale + squareElevation / 25,
-          "texture.scaleY": baseScale + squareElevation / 25,
+          "texture.scaleX": baseScale + targetElevation / 25,
+          "texture.scaleY": baseScale + targetElevation / 25,
         });
       }
     } else if (tokenDoc.texture.scaleX !== 0) {
@@ -424,7 +431,6 @@ Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
     }
   }
 });
-
 
 
 
