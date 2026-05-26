@@ -9,30 +9,29 @@ This module is still a work in progress, please report any bugs or requested fea
 
 
 ## HOW TO USE:
-This module adds a set of Scene Control tools, accessed via the new main toolbar button shaped like a mountain.
-<img width="48" height="48" alt="image" src="https://github.com/user-attachments/assets/79d0086c-1016-4279-83f0-1ab5f0e39618" />
-Selecting this panel give you access to the tools this module provides.
-<img width="44" height="288" alt="image" src="https://github.com/user-attachments/assets/c77946b4-83d2-483d-9723-53b20708ebe1" />
+This module adds a set of terrain design utilities, accessed via the new main toolbar button shaped like a mountain.
 
-From top to bottom, these are:
-### Elevation Painter
-This tool allows you to set the elevation of selected squares by clicking and dragging the squares you want to be "elevated". You can cycle through elevations as you paint this way to paint multiple different elevation regions in one pass.
-### Elevation Eraser
-This tool allows you to select elevated squares which you want to remove elevation from.
-### Clear Scene Elevation
-This allows you to immediately clear all marked elevation for the currently active scene.
-### Check Elevation
-This player-facing tool allows non-GM players to hover over tiles and see their elevation, as well as highlighting as any other squares with the same elevation. Useful if you have disabled the "number overlay" and want to easily check the elevation of a square/area.
-### Difficult Terrain Painter
-This tool allows you to mark sqaures as difficult terrain by clicking and dragging the squares you want to be marked.
-### Difficult Terrain Eraser
-This tool allows you to select squares which you want to remove difficult terrain markers from.
-### Clear Scene Difficult Terrain
-This allows you to immediately clear all marked difficult terrain for the currently active scene.
+<img width="48" height="48" alt="image" src="https://github.com/user-attachments/assets/79d0086c-1016-4279-83f0-1ab5f0e39618" />
+
+Selecting this panel give you access to the "Elevation Checker" (player-facing) and the "Terrain Designer Panel" (GM only).
+
+<img width="39" height="85" alt="image" src="https://github.com/user-attachments/assets/f63bf84e-9e34-4854-9198-973247eccc51" />
+
+Opening the Terrain Designer Panel, you will find this:
+
+<img width="430" height="230" alt="image" src="https://github.com/user-attachments/assets/885fc933-4898-4679-9fd2-a6103b0840b2" />
+
+Each button will allow you to paint, erase, or clear all scene terrain of the given type.
+
+Clicking the "Paint" or "Erase" button for each will activate a square selection mode, and pop up a description of the currently active tool:
+
+<img width="424" height="542" alt="image" src="https://github.com/user-attachments/assets/da37a714-3d56-4637-ae39-4196851c2d63" />
 
 ___
 
-Once squares have been marked via this module, an overlay will appear indicating which squares are elevated. These overlays are customizable: the elevation overlay has two modes of visualization - Gradient and Colored Tile. Additionally, you can choose whether or not to have a number appear in each tile indicating its elevation. Each possible elevation is represented by a unique color, which can be individually customized via the module settings. The Difficult Terrain overlay can also be customized to alter the pattern color and the density of lines that comprise the overlay.
+Once squares have been marked via this module, an overlay will appear indicating which squares are elevated. These overlays are customizable. the elevation overlay has two modes of visualization - Gradient and Colored Tile. Additionally, you can choose whether or not to have a number appear in each tile indicating its elevation. Each possible elevation is represented by a unique color, which can be individually customized via the module settings. The Difficult Terrain overlay can also be customized to alter the pattern color and the density of lines that comprise the overlay.
+
+Squares marked with elevation will automatically update a token's elevation when it moves onto them. Squares marked with difficult terrain automatically get a scene region placed on them with the "Modify Movement Cost" behavior.
 
 Example of how these overlays look in a scene:
 <img width="1510" height="810" alt="image" src="https://github.com/user-attachments/assets/c52a1fc5-215a-4337-a1fd-3a0378843a38" />
