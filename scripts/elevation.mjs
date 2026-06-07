@@ -378,6 +378,10 @@ export const selectSquares = ({ useElevation = false} = {}) => {
 /* -------------------------------------------------- */
 Hooks.on('updateToken', async (tokenDoc, changes, options, userId) => {
   if (game.modules.get('draw-steel-combat-tools')?.api?.isFMActive?.()) return;
+  if (!game.user.isActiveGM) return;
+  // const [, , evtData, evtUserId] = args;
+  // // only run once no matter how many users!
+  // if (game.userId !== evtUserId) return;
 
   //if there is a change in token position, set elevation to match the square's elevation
   if (changes.x !== undefined || changes.y !== undefined) {
